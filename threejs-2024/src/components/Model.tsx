@@ -1,9 +1,9 @@
-// src/components/ThreeScene.tsx
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { WebGL } from "three/examples/jsm/Addons.js";
 
-const ThreeScene: React.FC = () => {
+const ThreeModel: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -17,30 +17,35 @@ const ThreeScene: React.FC = () => {
       0.1,
       1000,
     );
-    const renderer = new THREE.WebGLRenderer();
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     mount.appendChild(renderer.domElement);
 
-    // Example object
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({ color: 0xff7777 });
+    camera.position.z = 5; // 카메라 위치 조정
 
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
+    // 조명 추가
+    const light = new THREE.AmbientLight(0xffffff, 1);
+    scene.add(light);
 
-    camera.position.z = 5;
-
+    const loader = new GLTFLoader();
+    loader.load(
+      "https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf",
+      function (gltf) {
+        scene.add(gltf.scene);
+      },
+      undefined,
+      function (error) {
+        console.error(error);
+      },
+    );
     const animate = () => {
       requestAnimationFrame(animate);
-      cube.rotation.x += 0.02;
-      cube.rotation.y += 0.05;
       renderer.render(scene, camera);
     };
 
     let warning: HTMLElement | null = null;
 
     if (WebGL.isWebGL2Available()) {
-      // Initiate function or other initializations here
       animate();
     } else {
       warning = WebGL.getWebGL2ErrorMessage();
@@ -50,10 +55,13 @@ const ThreeScene: React.FC = () => {
     // Cleanup
     return () => {
       mount.removeChild(renderer.domElement);
+      if (warning) {
+        mount.removeChild(warning);
+      }
     };
   }, []);
 
   return <div ref={mountRef} style={{ width: "100%", height: "100vh" }} />;
 };
 
-export default ThreeScene;
+export default ThreeModel;

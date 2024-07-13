@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { WebGL } from "three/examples/jsm/Addons.js";
 
-const ThreeScene: React.FC = () => {
+const ThreeLine: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -21,19 +21,25 @@ const ThreeScene: React.FC = () => {
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     mount.appendChild(renderer.domElement);
 
+    const points = [];
+    points.push(new THREE.Vector3(-10, 0, 0));
+    points.push(new THREE.Vector3(0, 10, 0));
+    points.push(new THREE.Vector3(10, 0, 0));
+
     // Example object
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({ color: 0xff7777 });
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const material = new THREE.LineBasicMaterial({ color: 0xff7733 });
 
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
+    const line = new THREE.Line(geometry, material);
 
-    camera.position.z = 5;
+    scene.add(line);
+
+    camera.position.z = 30;
 
     const animate = () => {
       requestAnimationFrame(animate);
-      cube.rotation.x += 0.02;
-      cube.rotation.y += 0.05;
+      line.rotation.x += 0.01;
+      line.rotation.y += 0.01;
       renderer.render(scene, camera);
     };
 
@@ -56,4 +62,4 @@ const ThreeScene: React.FC = () => {
   return <div ref={mountRef} style={{ width: "100%", height: "100vh" }} />;
 };
 
-export default ThreeScene;
+export default ThreeLine;
